@@ -1,0 +1,36 @@
+service: multi-lang-microservices
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  ecr:
+    images:
+      goLangMicroService:
+        path: ./goLang
+      javascriptMicroService:
+        path: ./javaScript
+      pythonMicroService:
+        path: ./python
+
+functions:
+  jsMicroservice:
+    image:
+      name: javascriptMicroService
+    events:
+      - httpApi:
+          path: /js/{proxy+}
+          method: ANY
+  pythonMicroservice:
+    image:
+      name: pythonMicroService
+    events:
+      - httpApi:
+          path: /py/{proxy+}
+          method: ANY
+  goLangMicroservice:
+    image:
+      name: goLangMicroService
+    events:
+      - httpApi:
+          path: /go/{proxy+}
+          method: ANY
