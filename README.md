@@ -1,9 +1,9 @@
 # Multi Language Serverless Micro-services
 Template with 3 micro-services made in different languages deployed under the same API Gateway. You can create as many as the stack allows with any language you like.
-All of them use AWS LAMBDA WEB ADAPTERS so they can run normal web apps on port 8080 and still respond to lambda calls.
+All of them use [AWS LAMBDA WEB ADAPTERS](https://github.com/awslabs/aws-lambda-web-adapter) so they can run normal web apps on port 8080 and still respond to lambda calls.
 ## How to use it?
 #### Install AWS CLI
-Instructions can be found here.
+Instructions can be found [here](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html).
 #### deploy your app
 ```bash
 sls deploy
