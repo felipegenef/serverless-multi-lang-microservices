@@ -1,8 +1,9 @@
 service: multi-lang-microservices
-frameworkVersion: '3'
+frameworkVersion: "3"
 
 provider:
   name: aws
+  runtime: custom
   ecr:
     images:
       goLangMicroService:
@@ -13,6 +14,14 @@ provider:
         path: ./python
 
 functions:
+  jsIsolatedFunction: # Use specific routes to override your Micro-service when you need a custom Memory/ CPU env for one endpoint only
+    runtime: nodejs20.x
+    memorySize: 512
+    handler: ./IsolatedJS/index.handler
+    events:
+      - httpApi:
+          path: /js/api/isolated
+          method: GET
   jsMicroservice:
     image:
       name: javascriptMicroService

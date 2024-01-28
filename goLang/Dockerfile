@@ -9,11 +9,10 @@ ENV GO111MODULE=on
 ENV GOPATH=""
 RUN go mod init example.com/goLangMicroservice
 RUN go get -u github.com/gofiber/fiber/v2
-RUN GOOS=linux go build -o main main.go
+RUN GOOS=linux go build -o ./main main.go
 
-# Start lambda container from fresh image (needs to be AWS one or Custom Runtime self-made) 
-FROM public.ecr.aws/lambda/go:1
-
+# Start lambda container from fresh image 
+FROM golang:alpine
 
 
 WORKDIR "/var/task"
@@ -24,4 +23,4 @@ COPY --from=public.ecr.aws/awsguru/aws-lambda-adapter:0.7.0 /lambda-adapter /opt
 
 
 
-CMD ["main"]
+CMD ["/var/task/main"]
