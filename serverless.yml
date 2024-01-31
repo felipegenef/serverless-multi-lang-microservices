@@ -13,33 +13,80 @@ provider:
       pythonMicroService:
         path: ./python
 
+plugins:
+  - serverless-apigateway-service-proxy
+
 functions:
+  jwtAuthorizer: # Custom Lambda Authorizer for SQS endpoint
+    runtime: nodejs20.x
+    handler: ./authorizer/index.handler
+
+  sqsListener: # Lambda Listner for SQS endpoint
+    runtime: nodejs20.x
+    handler: ./SQS/index.handler
+    events:
+      - sqs:
+          arn: !GetAtt SQSQueue.Arn
+
   jsIsolatedFunction: # Use specific routes to override your Micro-service when you need a custom Memory/ CPU env for one endpoint only
     runtime: nodejs20.x
     memorySize: 512
     handler: ./IsolatedJS/index.handler
     events:
-      - httpApi:
+      - http:
           path: /js/api/isolated
           method: GET
+          authorizer: jwtAuthorizer
+
   jsMicroservice:
     image:
       name: javascriptMicroService
     events:
-      - httpApi:
+      - http:
           path: /js/{proxy+}
           method: ANY
   pythonMicroservice:
     image:
       name: pythonMicroService
     events:
-      - httpApi:
+      - http:
           path: /py/{proxy+}
           method: ANY
   goLangMicroservice:
     image:
       name: goLangMicroService
     events:
-      - httpApi:
+      - http:
           path: /go/{proxy+}
           method: ANY
+
+custom:
+  apiGatewayServiceProxies:
+    - sqs:
+        path: /js/sqs
+        method: post
+        queueName: !GetAtt SQSQueue.QueueName
+        cors: true
+        authorizationType: "CUSTOM"
+        authorizerId: { "Ref": JwtAuthorizerApiGatewayAuthorizer }
+        response:
+          template:
+            success: |
+              {
+                "success": "success sending to SQS"
+              }
+            serverError: |
+              {
+                "success": false,
+                "errorMessage": "Server Error"
+              }
+            clientError: |
+              {
+                "success": false,
+                "errorMessage": "Client Error"
+              }
+
+resources:
+  Resources:
+    SQSQueue:
+      Type: "AWS::SQS::Queue"
